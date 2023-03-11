@@ -28,5 +28,29 @@ pipeline
             }
         }
     }
+    
+    stage ('test')
+    {
+        parallel {
+            stage('testA')
+            {
+                steps{
+                    echo "This is test stage A"
+                }
+            }
+            stage('testB')
+            {
+                steps{
+                    echo "This is test stage B"
+                }
+            }
+        }
+    }
+    post {
+      success {
+        archiveArtifacts artifacts: '**/target/*.war'
+            }
+        }
+
   }
 }
