@@ -2,6 +2,14 @@ pipeline
 {
   agent { label 'New-Agent1'}
   
+  parameters {
+    string defaultValue: 'saxena', name: 'LAST_NAME'
+  }
+
+  environment {
+    NAME = "Vishal"
+  }
+
   tools {
     maven 'mymaven'
   }
@@ -12,6 +20,7 @@ pipeline
     { 
       steps{
            sh 'mvn clean package -DskipTests=true'
+           echo "Hello $NAME ${params.LAST_NAME}"
       }
       post {
       success {
