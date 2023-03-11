@@ -78,6 +78,7 @@ stages{
             }
             sh """
             cd /var/www/html/
+            chmod 777 webapp.war
             jar -xvf webapp.war
             """
         }
