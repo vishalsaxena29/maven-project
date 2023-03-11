@@ -1,84 +1,87 @@
 pipeline
 {
-  agent { label 'New-Agent1'}
-  
-  parameters {
+
+agent {
+  label 'New-Agent1'
+}
+
+parameters {
     choice choices: ['dev', 'prod'], name: 'select_environment'
-  }
+}
 
-  environment {
-    NAME = "Vishal"
-  }
+environment{
+    NAME = "vishal"
+}
+tools {
+  maven 'mymaven'
+}
 
-  tools {
-    maven 'mymaven'
-  }
+stages{
 
-  stages {
-
-    stage ('Build')
-    { 
-      steps{
-           sh 'mvn clean package -DskipTests=true'
-           echo "Hello $NAME ${params.LAST_NAME}"
-      }
-      post {
-      success {
-        archiveArtifacts artifacts: '**/target/*.war'
-            }
-        }
-    }
-    
-    stage ('test')
+    stage('build')
     {
+        steps {
+            script{
+                file = load "script.groovy"
+                file.hello()
+            }
+            sh 'mvn clean package -DskipTests=true'
+           
+        }
+
+        
+
+    }
+
+    stage('test')
+    { 
         parallel {
             stage('testA')
             {
-                agent { label 'New-Agent1'}
+                agent { label 'DevServer' }
                 steps{
-                    echo "This is test stage A"
+                    echo " This is test A"
                     sh "mvn test"
                 }
+                
             }
             stage('testB')
             {
-                agent { label 'New-Agent1'} 
+                agent { label 'DevServer' }
                 steps{
-                    echo "This is test stage B"
-                    sh "mvn test"
+                echo "this is test B"
+                sh "mvn test"
                 }
             }
         }
         post {
         success {
-            //archiveArtifacts artifacts: '**/target/*.war'
-            dir("webapp/target/")
+             dir("webapp/target/")
             {
-                stash name: "maven-build", includes: "*.war"
+            stash name: "maven-build", includes: "*.war"
+                 }
+                 }
             }
-            }
-        }
+
     }
 
-    stage ('Deploy')
+    stage('deploy_dev')
     {
-        when {
-            expression {
-                params.select_environment == 'dev'
+        when { expression {params.select_environment == 'dev'}
+        beforeAgent true}
+        agent { label 'New-Agent1' }
+        steps
+        {
+            dir("/var/www/html")
+            {
+                unstash "maven-build"
             }
-            beforeAgent true
-            agent { label 'New-Agent1'}
-            steps {
-                dir("/var/www/html")
-                {
-                    unstash maven-build
-                }
-                sh """
-                cd /var/www/html
-                jar -xvf webapp.war
-                """
-            }
+            sh """
+            cd /var/www/html/
+            jar -xvf webapp.war
+            """
         }
     }
-  }
+}
+
 }
