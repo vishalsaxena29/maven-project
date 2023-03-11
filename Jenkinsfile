@@ -14,10 +14,10 @@ pipeline
           sh 'mvc clean package'
       }
       post {
-        success {
-            archiveArtifacts artifacts: '**/target/*.war'
-                }
+      success {
+        archiveArtifacts artifacts: '**/target/*.war'
             }
+        }
     }
   }
 }
