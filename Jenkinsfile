@@ -3,7 +3,8 @@ pipeline
   agent { label 'New-Agent1'}
   
   tools {
-    maven 'mymaven'
+    maven 'Maven 3.3.9' 
+    jdk 'jdk8'
   }
 
   stages {
