@@ -3,7 +3,7 @@ pipeline
   agent { label 'New-Agent1'}
   
   parameters {
-    choice choices : ['dev','prod', name : 'select_environment']
+    choice choices: ['dev', 'prod'], name: 'select_environment'
   }
 
   environment {
